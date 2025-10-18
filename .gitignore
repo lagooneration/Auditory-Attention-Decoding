@@ -1,0 +1,111 @@
+# MATLAB Files
+*.mat
+*.fig
+*.slx.autosave
+*.slxc
+*.mltbx
+*.mlapp
+*.mlappinstall
+*.mlpkginstall
+*.mlsettings
+*.mlsettings.*
+*.p
+
+# MATLAB Cache and Temporary Files
+slprj/
+codegen/
+*.asv
+*~
+
+# MATLAB MEX Files
+*.mexa64
+*.mexw32
+*.mexw64
+*.mexmaci64
+*.mexmaci
+
+# MATLAB Coder Files
+*.mex
+
+# Simulink Files
+*.sldd
+
+# MATLAB Profiler
+profile_results/
+
+# MATLAB Compiler
+*.mcc
+*.mcp
+*.mcrinstaller
+
+# OS Generated Files
+# Windows
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Log Files
+*.log
+
+# Data Files (adjust based on your needs)
+# Uncomment the following lines if you want to ignore specific data formats
+# *.csv
+# *.xlsx
+# *.xls
+# *.txt (be careful with this as it might ignore important text files)
+
+# Results and Output Directories
+results/
+output/
+temp/
+cache/
+
+# IDE Files
+.vscode/
+*.code-workspace
+
+# Python Files (if used with MATLAB)
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# R Files (if used with MATLAB)
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Large Files (Git LFS should be used for these)
+*.avi
+*.mov
+*.mp4
+*.wav
+*.mp3
+
+# AMToolbox specific (inherited from amtoolbox/.gitignore)
+auxdata/
+cache/
+*.sofa
+
+# Project specific exclusions
+# Add any project-specific files or directories you want to ignore
