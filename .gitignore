@@ -104,6 +104,7 @@ venv/
 
 # AMToolbox specific (inherited from amtoolbox/.gitignore)
 auxdata/
+amtoolbox/
 cache/
 *.sofa
 
