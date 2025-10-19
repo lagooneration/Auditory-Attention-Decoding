@@ -26,5 +26,5 @@ try
     erbspacebw(100, 1000, 1.0);
     fprintf('✓ AMToolbox functions verified\n');
 catch ME
-    warning('AMToolbox functions may not work: %s', ME.message);
+    warning('AMToolbox functions may not work: %s', E.message);
 end

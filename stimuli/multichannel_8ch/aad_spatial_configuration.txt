@@ -1,0 +1,31 @@
+AAD Multichannel Spatial Configuration
+=====================================
+
+Channels: 8
+Creation Date: 19-Oct-2025 02:04:21
+
+3D Speaker Configuration:
+1. FL: Azimuth=30°, Elevation=20°
+2. FR: Azimuth=-30°, Elevation=20°
+3. C: Azimuth=0°, Elevation=0°
+4. LFE: Azimuth=0°, Elevation=0°
+5. SL: Azimuth=110°, Elevation=15°
+6. SR: Azimuth=-110°, Elevation=15°
+7. BL: Azimuth=150°, Elevation=25°
+8. BR: Azimuth=-150°, Elevation=25°
+
+Primary AAD Positions: FL(30°/20°) FR(-30°/20°) SL(110°/15°) SR(-110°/15°) BL(150°/25°) BR(-150°/25°) 
+
+3D Competitive Scenario Design:
+- Track 1 and Track 2 placed at different 3D spatial positions
+- Elevation-dependent HRTF simulation for height perception
+- 3D-aware cross-talk to adjacent speakers (12% base level)
+- Elevation-dependent decorrelation (0-6ms delays)
+- Azimuth and elevation cues for enhanced spatial attention
+- Maintains competitive paradigm for 3D AAD research
+
+Elevation Benefits for AAD:
+- Enhanced spatial separation between competing sources
+- Additional neural cues for attention decoding
+- More realistic 3D listening environment
+- Potential for improved algorithm performance

@@ -1,0 +1,134 @@
+=== AAD Algorithm Comparison Report ===
+
+Algorithm Performance Summary:
+Algorithm    | ch2 Mean±STD    | ch8 Mean±STD   
+------------------------------------------------
+CORRELATION  |  50.3± 1.4%    |  91.7± 1.6%   
+TRF          |  50.3±13.1%    |  51.3±11.5%   
+CCA          |  72.2±26.1%    |  43.8±12.3%   
+
+Channel Configuration Comparison:
+
+CORRELATION Algorithm:
+  Best configuration: ch8 (91.7%)
+  Channel improvement: 41.4% (multichannel better)
+
+TRF Algorithm:
+  Best configuration: ch8 (51.3%)
+  Channel improvement: 0.9% (multichannel better)
+
+CCA Algorithm:
+  Best configuration: ch2 (72.2%)
+  Channel improvement: -28.4% (2-channel better)
+
+Creating visualization plots...
+
+Performing statistical analysis...
+Statistical Analysis Results:
+============================
+
+CORRELATION Algorithm:
+  2-channel: 50.3±1.4%
+  8-channel: 91.7±1.6%
+  Difference: 41.4% (p=0.000)
+  Effect size (Cohen's d): 27.557
+  Result: 8-channel significantly BETTER than 2-channel
+
+TRF Algorithm:
+  2-channel: 50.3±13.1%
+  8-channel: 51.3±11.5%
+  Difference: 0.9% (p=0.844)
+  Effect size (Cohen's d): 0.076
+  Result: No significant difference between configurations
+
+CCA Algorithm:
+  2-channel: 72.2±26.1%
+  8-channel: 43.8±12.3%
+  Difference: -28.4% (p=0.001)
+  Effect size (Cohen's d): -1.392
+  Result: 8-channel significantly WORSE than 2-channel
+
+
+
+-------------------------------------------------------------
+
+=== Algorithms ===
+
+1. Correlation-based AAD
+2. Temporal Response Function (TRF)
+3. Canonical Correlation Analysis (CCA)
+
+=== 1. CORRELATION
+The correlation algorithm detects auditory attention by:
+
+Computing cross-correlations between EEG signals and audio envelopes from competing speakers
+Comparing correlation strengths between attended vs unattended audio streams
+Predicting attention based on which audio stream shows higher correlation with neural activity
+
+Approach
+1. Enhanced Spatial Separation
+8-channel configuration creates 3D spatial positioning with elevation:
+
+Front Left: 30° azimuth, 20° elevation
+Front Right: -30° azimuth, 20° elevation
+Back Left/Right: 150°/-150° azimuth, 25° elevation
+Side channels: 110°/-110° azimuth, 15° elevation
+This creates stronger perceptual separation between competing audio streams than traditional dichotic (left/right ear) presentation.
+
+
+2. Elevation-Enhanced Neural Encoding
+Spatial processing applies elevation-dependent filtering:
+
+% Higher frequencies are enhanced for elevated sources
+elevation_gain = 1 + (elevation / 180) * 0.3; % Up to 30% gain for 90° elevation
+
+% Create simple high-frequency emphasis for elevation cues  
+[b, a] = butter(2, [3000 8000] / (22050), 'bandpass');
+elevation_component = filtfilt(b, a, audio_signal);
+
+=== 2. TRF (Temporal Response Function) Algorithm
+TRF captures the neural temporal response to auditory stimuli, modeling how the brain processes audio over time delays.
+
+Models temporal dynamics between audio envelopes and EEG using ridge regression
+Creates time-lagged features from audio envelopes (typically -100 to +400ms)
+Learns linear filters that predict EEG responses from audio stimuli
+Classifies attention by comparing reconstruction accuracy
+
+mechanism-
+% Create time-lagged features for temporal modeling
+lags = params.trf.min_lag:params.trf.max_lag;  % e.g., -100ms to +400ms
+X = [];  % Design matrix with time lags
+for lag = lags
+    shifted_env = [zeros(lag, num_features); envelope(1:end-lag, :)];
+    X = [X, shifted_env];
+end
+
+% Ridge regression for regularization
+lambda = params.trf.regularization;
+w = (X'*X + lambda*eye(size(X, 2))) \ (X'*y);
+
+
+=== 3. CCA (Canonical Correlation Analysis) Algorithm
+CCA finds the optimal linear transformations that reveal shared information between brain signals and audio, potentially capturing complex neural encoding patterns.
+
+Finds linear combinations of EEG and audio that maximize correlation
+Projects data into shared latent space where correlation is maximized
+Learns canonical variates that capture shared neural-audio information
+Classifies attention by comparing canonical correlations
+
+mechanism-
+% Canonical correlation analysis between EEG and lagged envelopes
+[A, B, r] = canoncorr(X_eeg, X_env);
+
+% A: EEG canonical weights
+% B: Envelope canonical weights  
+% r: Canonical correlations
+
+% Test correlation in canonical space
+test_corr = test_cca_model(trial.eeg, trial.attended_envelope, cca_model);
+
+-----------------------------------------------------
+
+Insights
+
+Spatial processing pathways in the auditory cortex are critical for attention decoding.
