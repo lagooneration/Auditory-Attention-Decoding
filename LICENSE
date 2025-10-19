@@ -1,7 +1,7 @@
 GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
- Copyright (C) 2025 [Your Name]
+ Copyright (C) 2025 [Puneet Lagoo]
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -45,8 +45,5 @@ This project incorporates the following third-party components:
 ATTRIBUTION:
 
 If you use this work, please cite:
-- The original KULeuven AAD dataset (see citation above)
-- This spatial enhancement implementation
-- AMToolbox (if using auditory modeling functions)
+> Biesmans, W., Das, N., Francart, T., & Bertrand, A. (2016). Auditory-inspired speech envelope extraction methods for improved EEG-based auditory attention detection in a cocktail party scenario. *IEEE Transactions on Neural Systems and Rehabilitation Engineering*, 25(5), 402–412. [DOI:10.1109/TNSRE.2016.2571900](https://doi.org/10.1109/TNSRE.2016.2571900)
 
-For commercial use or alternative licensing, contact the repository owner.
