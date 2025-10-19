@@ -1,0 +1,68 @@
+AAD ALGORITHM COMPARISON - VISUALIZATION REPORT
+==============================================
+Generated on: 19-Oct-2025 11:17:11
+
+ANALYSIS OVERVIEW:
+------------------
+Algorithms tested: CORRELATION, TRF, CCA
+Channel configurations: 2, 8
+
+PERFORMANCE SUMMARY:
+--------------------
+
+CH2 CONFIGURATION:
+  CORRELATION:
+    Mean: 0.50% ± 0.01%
+    Range: 0.47% - 0.52%
+    Median: 0.50%
+    Subjects: 16
+  TRF:
+    Mean: 0.50% ± 0.13%
+    Range: 0.30% - 0.75%
+    Median: 0.47%
+    Subjects: 16
+  CCA:
+    Mean: 0.72% ± 0.26%
+    Range: 0.35% - 1.00%
+    Median: 0.78%
+    Subjects: 16
+
+CH8 CONFIGURATION:
+  CORRELATION:
+    Mean: 0.92% ± 0.02%
+    Range: 0.88% - 0.94%
+    Median: 0.92%
+    Subjects: 16
+  TRF:
+    Mean: 0.51% ± 0.11%
+    Range: 0.30% - 0.65%
+    Median: 0.53%
+    Subjects: 16
+  CCA:
+    Mean: 0.44% ± 0.12%
+    Range: 0.20% - 0.65%
+    Median: 0.45%
+    Subjects: 16
+
+IMPROVEMENT ANALYSIS (8CH vs 2CH):
+----------------------------------
+
+CORRELATION:
+  Mean improvement: +0.41%
+  Subjects improved: 16/16 (100.0%)
+  Improvement range: +0.36% to +0.45%
+
+TRF:
+  Mean improvement: +0.01%
+  Subjects improved: 8/16 (50.0%)
+  Improvement range: -0.30% to +0.35%
+
+CCA:
+  Mean improvement: -0.28%
+  Subjects improved: 2/16 (12.5%)
+  Improvement range: -0.80% to +0.20%
+
+STATISTICAL ANALYSIS:
+---------------------
+
+CORRELATION:

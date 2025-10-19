@@ -99,10 +99,15 @@ for algo_idx = 1:length(algorithms)
             algo_results = results.(config).(algorithm);
             
             if strcmp(config, 'ch2')
-                data_2ch = algo_results.accuracy_per_subject;
-                subject_labels = algo_results.subject_names;
+                data_2ch = algo_results.subject_accuracies;
+                % Try to get subject names if available
+                if isfield(algo_results, 'subject_names')
+                    subject_labels = algo_results.subject_names;
+                else
+                    subject_labels = arrayfun(@(x) sprintf('S%d', x), 1:length(data_2ch), 'UniformOutput', false);
+                end
             elseif strcmp(config, 'ch8')
-                data_8ch = algo_results.accuracy_per_subject;
+                data_8ch = algo_results.subject_accuracies;
             end
         end
     end
@@ -235,7 +240,7 @@ for algo_idx = 1:num_algos
         config = channel_configs{config_idx};
         
         if isfield(results, config) && isfield(results.(config), algorithm)
-            accuracies = results.(config).(algorithm).accuracy_per_subject;
+            accuracies = results.(config).(algorithm).subject_accuracies;
             mean_accuracy(algo_idx, config_idx) = mean(accuracies);
             std_accuracy(algo_idx, config_idx) = std(accuracies);
         end
@@ -243,41 +248,27 @@ for algo_idx = 1:num_algos
 end
 
 % Create heatmap figure
-figure('Position', [100, 100, 1000, 600]);
+figure('Position', [100, 100, 1200, 600]);
 
 subplot(1, 2, 1);
-% Mean accuracy heatmap
+% Mean accuracy heatmap with text annotations
 h1 = heatmap(channel_configs, algorithms, mean_accuracy);
 h1.Title = 'Mean Accuracy (%)';
 h1.Colormap = parula;
-colorbar;
 
-% Add text annotations
-for i = 1:num_algos
-    for j = 1:num_configs
-        if mean_accuracy(i, j) > 0
-            text(j, i, sprintf('%.1f', mean_accuracy(i, j)), ...
-                'HorizontalAlignment', 'center', 'Color', 'white', 'FontWeight', 'bold');
-        end
-    end
-end
+% For modern MATLAB, use CellLabelFormat to show values
+h1.CellLabelFormat = '%.1f%%';
+h1.CellLabelColor = 'white';
 
 subplot(1, 2, 2);
-% Standard deviation heatmap
+% Standard deviation heatmap with text annotations
 h2 = heatmap(channel_configs, algorithms, std_accuracy);
 h2.Title = 'Standard Deviation (%)';
 h2.Colormap = copper;
-colorbar;
 
-% Add text annotations
-for i = 1:num_algos
-    for j = 1:num_configs
-        if std_accuracy(i, j) > 0
-            text(j, i, sprintf('%.1f', std_accuracy(i, j)), ...
-                'HorizontalAlignment', 'center', 'Color', 'white', 'FontWeight', 'bold');
-        end
-    end
-end
+% Show std deviation values
+h2.CellLabelFormat = '%.2f';
+h2.CellLabelColor = 'white';
 
 sgtitle('AAD Algorithm Comparison Heatmaps', 'FontSize', 16, 'FontWeight', 'bold');
 
@@ -293,12 +284,26 @@ end
 function create_statistical_plots(results, plots_dir)
 % Create plots showing statistical significance of comparisons
 
+% Check if statistics exist in results
 if ~isfield(results, 'statistics')
+    fprintf('No statistics field found in results. Skipping statistical plots.\n');
     return;
 end
 
 stats = results.statistics;
-algorithms = results.algorithms;
+
+% Get algorithms from results structure
+if isfield(results, 'algorithms')
+    algorithms = results.algorithms;
+else
+    % Try to extract algorithms from field names (excluding 'statistics' and 'subject_accuracies')
+    all_fields = fieldnames(results);
+    algorithms = all_fields(~ismember(all_fields, {'statistics', 'subject_accuracies'}));
+    if isempty(algorithms)
+        fprintf('No algorithms found in results. Skipping statistical plots.\n');
+        return;
+    end
+end
 
 figure('Position', [100, 100, 1200, 400]);
 
@@ -309,9 +314,13 @@ algo_names = {};
 
 for i = 1:length(algorithms)
     algorithm = algorithms{i};
-    if isfield(stats, algorithm) && isfield(stats.(algorithm), 'p_value')
-        p_values(end+1) = stats.(algorithm).p_value;
-        algo_names{end+1} = upper(algorithm);
+    % More robust checking for p_value
+    if isfield(stats, algorithm) && isstruct(stats.(algorithm)) && isfield(stats.(algorithm), 'p_value')
+        p_val = stats.(algorithm).p_value;
+        if isnumeric(p_val) && ~isempty(p_val)
+            p_values(end+1) = p_val;
+            algo_names{end+1} = upper(algorithm);
+        end
     end
 end
 
@@ -343,24 +352,34 @@ end
 % Effect sizes plot
 subplot(1, 3, 2);
 effect_sizes = [];
+effect_algo_names = {};
+
 for i = 1:length(algorithms)
     algorithm = algorithms{i};
-    if isfield(stats, algorithm) && isfield(stats.(algorithm), 'effect_size')
-        effect_sizes(end+1) = stats.(algorithm).effect_size;
-    else
-        effect_sizes(end+1) = 0;
+    % More robust checking for effect_size
+    if isfield(stats, algorithm) && isstruct(stats.(algorithm)) && isfield(stats.(algorithm), 'effect_size')
+        effect_val = stats.(algorithm).effect_size;
+        if isnumeric(effect_val) && ~isempty(effect_val)
+            effect_sizes(end+1) = effect_val;
+            effect_algo_names{end+1} = upper(algorithm);
+        end
     end
 end
 
 if ~isempty(effect_sizes)
-    bar_colors = abs(effect_sizes);
     bar_handle = bar(effect_sizes);
     
     % Color based on effect size magnitude
+    bar_colors = abs(effect_sizes);
     colormap(gca, parula);
-    bar_handle.CData = bar_colors;
+    if length(effect_sizes) == 1
+        bar_handle.FaceColor = 'flat';
+        bar_handle.CData = bar_colors;
+    else
+        bar_handle.CData = bar_colors;
+    end
     
-    set(gca, 'XTickLabel', algo_names);
+    set(gca, 'XTickLabel', effect_algo_names);
     ylabel('Effect Size (Cohen''s d)');
     title('Effect Size (8ch vs 2ch)');
     
@@ -369,8 +388,13 @@ if ~isempty(effect_sizes)
     plot([0, length(effect_sizes)+1], [0.2, 0.2], 'g--', 'LineWidth', 1);
     plot([0, length(effect_sizes)+1], [0.5, 0.5], 'y--', 'LineWidth', 1);
     plot([0, length(effect_sizes)+1], [0.8, 0.8], 'r--', 'LineWidth', 1);
-    
-    grid on;
+    text(length(effect_sizes)/2, 0.9, 'Large', 'HorizontalAlignment', 'center');
+    text(length(effect_sizes)/2, 0.6, 'Medium', 'HorizontalAlignment', 'center');
+    text(length(effect_sizes)/2, 0.3, 'Small', 'HorizontalAlignment', 'center');
+else
+    text(0.5, 0.5, 'No effect size data available', 'HorizontalAlignment', 'center');
+    set(gca, 'XLim', [0 1], 'YLim', [0 1]);
+    title('Effect Size (8ch vs 2ch)');
 end
 
 % Confidence intervals plot
@@ -381,19 +405,39 @@ ci_upper = [];
 
 for i = 1:length(algorithms)
     algorithm = algorithms{i};
-    if isfield(stats, algorithm)
-        if isfield(stats.(algorithm), 'mean_difference')
-            mean_diffs(end+1) = stats.(algorithm).mean_difference;
-        else
-            mean_diffs(end+1) = 0;
-        end
+    % More robust checking for confidence interval data
+    if isfield(stats, algorithm) && isstruct(stats.(algorithm))
+        has_mean = isfield(stats.(algorithm), 'mean_difference');
+        has_ci = isfield(stats.(algorithm), 'ci_lower') && isfield(stats.(algorithm), 'ci_upper');
         
-        if isfield(stats.(algorithm), 'ci_lower')
-            ci_lower(end+1) = stats.(algorithm).ci_lower;
-            ci_upper(end+1) = stats.(algorithm).ci_upper;
-        else
-            ci_lower(end+1) = mean_diffs(end) - 1;
-            ci_upper(end+1) = mean_diffs(end) + 1;
+        if has_mean || has_ci
+            % Get mean difference
+            if has_mean
+                mean_val = stats.(algorithm).mean_difference;
+                if isnumeric(mean_val) && ~isempty(mean_val)
+                    mean_diffs(end+1) = mean_val;
+                else
+                    mean_diffs(end+1) = 0;
+                end
+            else
+                mean_diffs(end+1) = 0;
+            end
+            
+            % Get confidence intervals
+            if has_ci
+                lower_val = stats.(algorithm).ci_lower;
+                upper_val = stats.(algorithm).ci_upper;
+                if isnumeric(lower_val) && isnumeric(upper_val) && ~isempty(lower_val) && ~isempty(upper_val)
+                    ci_lower(end+1) = lower_val;
+                    ci_upper(end+1) = upper_val;
+                else
+                    ci_lower(end+1) = mean_diffs(end) - 1;
+                    ci_upper(end+1) = mean_diffs(end) + 1;
+                end
+            else
+                ci_lower(end+1) = mean_diffs(end) - 1;
+                ci_upper(end+1) = mean_diffs(end) + 1;
+            end
         end
     end
 end
@@ -447,11 +491,11 @@ for algo_idx = 1:length(algorithms)
     data_8ch = [];
     
     if isfield(results, 'ch2') && isfield(results.ch2, algorithm)
-        data_2ch = results.ch2.(algorithm).accuracy_per_subject;
+        data_2ch = results.ch2.(algorithm).subject_accuracies;
     end
     
     if isfield(results, 'ch8') && isfield(results.ch8, algorithm)
-        data_8ch = results.ch8.(algorithm).accuracy_per_subject;
+        data_8ch = results.ch8.(algorithm).subject_accuracies;
     end
     
     if ~isempty(data_2ch) && ~isempty(data_8ch)
@@ -671,7 +715,7 @@ for config_idx = 1:length(channel_configs)
             end
             
             field_name = sprintf('%s_%s', config, algorithm);
-            subject_data.(field_name) = algo_results.accuracy_per_subject;
+            subject_data.(field_name) = algo_results.subject_accuracies;
         end
     end
 end
@@ -887,7 +931,7 @@ for config_idx = 1:length(channel_configs)
         algorithm = algorithms{algo_idx};
         
         if isfield(results, config) && isfield(results.(config), algorithm)
-            accuracies = results.(config).(algorithm).accuracy_per_subject;
+            accuracies = results.(config).(algorithm).subject_accuracies;
             summary_stats.(config).(algorithm).mean = mean(accuracies);
             summary_stats.(config).(algorithm).std = std(accuracies);
             summary_stats.(config).(algorithm).median = median(accuracies);
@@ -1177,14 +1221,42 @@ fprintf(fid, 'AAD ALGORITHM COMPARISON - VISUALIZATION REPORT\n');
 fprintf(fid, '==============================================\n');
 fprintf(fid, 'Generated on: %s\n\n', datestr(now));
 
-% Write summary statistics
-algorithms = results.algorithms;
-channel_configs = results.channel_configs;
+% Get algorithms and channel configs with robust extraction
+if isfield(results, 'algorithms')
+    algorithms = results.algorithms;
+else
+    % Extract algorithms from field names (excluding known non-algorithm fields)
+    all_fields = fieldnames(results);
+    algorithms = all_fields(~ismember(all_fields, {'statistics', 'subject_accuracies', 'channel_configs'}));
+end
 
+if isfield(results, 'channel_configs')
+    channel_configs = results.channel_configs;
+elseif ~isempty(algorithms)
+    % Try to extract channel configs from first algorithm
+    first_algo = algorithms{1};
+    if isfield(results, first_algo) && isstruct(results.(first_algo))
+        channel_configs = fieldnames(results.(first_algo));
+    else
+        channel_configs = {'64_ch', '32_ch', '16_ch'}; % Default fallback
+    end
+else
+    channel_configs = {'64_ch', '32_ch', '16_ch'}; % Default fallback
+end
+
+% Write summary statistics
 fprintf(fid, 'ANALYSIS OVERVIEW:\n');
 fprintf(fid, '------------------\n');
-fprintf(fid, 'Algorithms tested: %s\n', strjoin(cellfun(@upper, algorithms, 'UniformOutput', false), ', '));
-fprintf(fid, 'Channel configurations: %s\n', strjoin(cellfun(@(x) upper(x(3:end)), channel_configs, 'UniformOutput', false), ', '));
+if ~isempty(algorithms)
+    fprintf(fid, 'Algorithms tested: %s\n', strjoin(cellfun(@upper, algorithms, 'UniformOutput', false), ', '));
+else
+    fprintf(fid, 'Algorithms tested: Not available\n');
+end
+if ~isempty(channel_configs)
+    fprintf(fid, 'Channel configurations: %s\n', strjoin(cellfun(@(x) upper(strrep(x, '_', '')), channel_configs, 'UniformOutput', false), ', '));
+else
+    fprintf(fid, 'Channel configurations: Not available\n');
+end
 fprintf(fid, '\n');
 
 % Calculate and write performance summary
@@ -1193,49 +1265,87 @@ fprintf(fid, '--------------------\n');
 
 for config_idx = 1:length(channel_configs)
     config = channel_configs{config_idx};
-    fprintf(fid, '\n%s CONFIGURATION:\n', upper(config));
+    fprintf(fid, '\n%s CONFIGURATION:\n', upper(strrep(config, '_', ' ')));
     
     for algo_idx = 1:length(algorithms)
         algorithm = algorithms{algo_idx};
         
-        if isfield(results, config) && isfield(results.(config), algorithm)
-            accuracies = results.(config).(algorithm).accuracy_per_subject;
+        % Check for data in the correct structure: results.(algorithm).(config)
+        if isfield(results, algorithm) && isfield(results.(algorithm), config) && isfield(results.(algorithm).(config), 'subject_accuracies')
+            accuracies = results.(algorithm).(config).subject_accuracies;
             
-            fprintf(fid, '  %s:\n', upper(algorithm));
-            fprintf(fid, '    Mean: %.2f%% ± %.2f%%\n', mean(accuracies), std(accuracies));
-            fprintf(fid, '    Range: %.2f%% - %.2f%%\n', min(accuracies), max(accuracies));
-            fprintf(fid, '    Median: %.2f%%\n', median(accuracies));
-            fprintf(fid, '    Subjects: %d\n', length(accuracies));
+            % Validate that accuracies is numeric
+            if isnumeric(accuracies) && ~isempty(accuracies)
+                fprintf(fid, '  %s:\n', upper(algorithm));
+                fprintf(fid, '    Mean: %.2f%% ± %.2f%%\n', mean(accuracies), std(accuracies));
+                fprintf(fid, '    Range: %.2f%% - %.2f%%\n', min(accuracies), max(accuracies));
+                fprintf(fid, '    Median: %.2f%%\n', median(accuracies));
+                fprintf(fid, '    Subjects: %d\n', length(accuracies));
+            else
+                fprintf(fid, '  %s: No valid accuracy data\n', upper(algorithm));
+            end
+        else
+            fprintf(fid, '  %s: No data available\n', upper(algorithm));
         end
     end
 end
 
 % Write improvement analysis
 if length(channel_configs) >= 2
-    fprintf(fid, '\nIMPROVEMENT ANALYSIS (8CH vs 2CH):\n');
-    fprintf(fid, '----------------------------------\n');
+    fprintf(fid, '\nIMPROVEMENT ANALYSIS:\n');
+    fprintf(fid, '---------------------\n');
     
-    for algo_idx = 1:length(algorithms)
-        algorithm = algorithms{algo_idx};
-        
-        if isfield(results, 'ch2') && isfield(results.ch2, algorithm) && ...
-           isfield(results, 'ch8') && isfield(results.ch8, algorithm)
-            
-            acc_2ch = results.ch2.(algorithm).accuracy_per_subject;
-            acc_8ch = results.ch8.(algorithm).accuracy_per_subject;
-            
-            min_len = min(length(acc_2ch), length(acc_8ch));
-            improvements = acc_8ch(1:min_len) - acc_2ch(1:min_len);
-            
-            mean_improvement = mean(improvements);
-            positive_count = sum(improvements > 0);
-            percentage_improved = (positive_count / min_len) * 100;
-            
-            fprintf(fid, '\n%s:\n', upper(algorithm));
-            fprintf(fid, '  Mean improvement: %+.2f%%\n', mean_improvement);
-            fprintf(fid, '  Subjects improved: %d/%d (%.1f%%)\n', positive_count, min_len, percentage_improved);
-            fprintf(fid, '  Improvement range: %+.2f%% to %+.2f%%\n', min(improvements), max(improvements));
+    % Find configs that might represent high vs low channel counts
+    high_ch_config = '';
+    low_ch_config = '';
+    
+    for i = 1:length(channel_configs)
+        config_name = lower(channel_configs{i});
+        if contains(config_name, '64') || contains(config_name, '8')
+            high_ch_config = channel_configs{i};
+        elseif contains(config_name, '16') || contains(config_name, '2')
+            low_ch_config = channel_configs{i};
         end
+    end
+    
+    if ~isempty(high_ch_config) && ~isempty(low_ch_config)
+        fprintf(fid, 'Comparing %s vs %s:\n', upper(strrep(high_ch_config, '_', ' ')), upper(strrep(low_ch_config, '_', ' ')));
+        
+        for algo_idx = 1:length(algorithms)
+            algorithm = algorithms{algo_idx};
+            
+            % Check if data exists for both configurations
+            if isfield(results, algorithm) && isfield(results.(algorithm), low_ch_config) && ...
+               isfield(results.(algorithm), high_ch_config) && ...
+               isfield(results.(algorithm).(low_ch_config), 'subject_accuracies') && ...
+               isfield(results.(algorithm).(high_ch_config), 'subject_accuracies')
+                
+                acc_low = results.(algorithm).(low_ch_config).subject_accuracies;
+                acc_high = results.(algorithm).(high_ch_config).subject_accuracies;
+                
+                % Validate data is numeric
+                if isnumeric(acc_low) && isnumeric(acc_high) && ~isempty(acc_low) && ~isempty(acc_high)
+                    min_len = min(length(acc_low), length(acc_high));
+                    improvements = acc_high(1:min_len) - acc_low(1:min_len);
+                    
+                    mean_improvement = mean(improvements);
+                    positive_count = sum(improvements > 0);
+                    percentage_improved = (positive_count / min_len) * 100;
+                    
+                    fprintf(fid, '\n%s:\n', upper(algorithm));
+                    fprintf(fid, '  Mean improvement: %+.2f%%\n', mean_improvement);
+                    fprintf(fid, '  Subjects improved: %d/%d (%.1f%%)\n', positive_count, min_len, percentage_improved);
+                    fprintf(fid, '  Max improvement: %+.2f%%\n', max(improvements));
+                    fprintf(fid, '  Min improvement: %+.2f%%\n', min(improvements));
+                else
+                    fprintf(fid, '\n%s: Invalid accuracy data for comparison\n', upper(algorithm));
+                end
+            else
+                fprintf(fid, '\n%s: Missing data for comparison\n', upper(algorithm));
+            end
+        end
+    else
+        fprintf(fid, 'No suitable channel configurations found for comparison.\n');
     end
 end
 
@@ -1254,29 +1364,40 @@ if isfield(results, 'statistics')
             fprintf(fid, '\n%s:\n', upper(algorithm));
             
             if isfield(algo_stats, 'p_value')
-                if algo_stats.p_value < 0.001
-                    fprintf(fid, '  p-value: < 0.001 ***\n');
-                elseif algo_stats.p_value < 0.01
-                    fprintf(fid, '  p-value: %.3f **\n', algo_stats.p_value);
-                elseif algo_stats.p_value < 0.05
-                    fprintf(fid, '  p-value: %.3f *\n', algo_stats.p_value);
+                p_val = algo_stats.p_value;
+                % Validate that p_value is numeric
+                if isnumeric(p_val) && ~isempty(p_val) && isfinite(p_val) && p_val >= 0 && p_val <= 1
+                    if p_val < 0.001
+                        fprintf(fid, '  p-value: < 0.001 ***\n');
+                    elseif p_val < 0.01
+                        fprintf(fid, '  p-value: %.3f **\n', p_val);
+                    elseif p_val < 0.05
+                        fprintf(fid, '  p-value: %.3f *\n', p_val);
+                    else
+                        fprintf(fid, '  p-value: %.3f (n.s.)\n', p_val);
+                    end
                 else
-                    fprintf(fid, '  p-value: %.3f (n.s.)\n', algo_stats.p_value);
+                    fprintf(fid, '  p-value: Invalid or missing data\n');
                 end
             end
             
             if isfield(algo_stats, 'effect_size')
                 effect_size = algo_stats.effect_size;
-                if abs(effect_size) >= 0.8
-                    effect_desc = 'Large';
-                elseif abs(effect_size) >= 0.5
-                    effect_desc = 'Medium';
-                elseif abs(effect_size) >= 0.2
-                    effect_desc = 'Small';
+                % Validate that effect_size is numeric
+                if isnumeric(effect_size) && ~isempty(effect_size) && isfinite(effect_size)
+                    if abs(effect_size) >= 0.8
+                        effect_desc = 'Large';
+                    elseif abs(effect_size) >= 0.5
+                        effect_desc = 'Medium';
+                    elseif abs(effect_size) >= 0.2
+                        effect_desc = 'Small';
+                    else
+                        effect_desc = 'Negligible';
+                    end
+                    fprintf(fid, '  Effect size (Cohen''s d): %.3f (%s)\n', effect_size, effect_desc);
                 else
-                    effect_desc = 'Negligible';
+                    fprintf(fid, '  Effect size: Invalid or missing data\n');
                 end
-                fprintf(fid, '  Effect size (Cohen''s d): %.3f (%s)\n', effect_size, effect_desc);
             end
         end
     end
@@ -1296,7 +1417,7 @@ for config_idx = 1:length(channel_configs)
         algorithm = algorithms{algo_idx};
         
         if isfield(results, config) && isfield(results.(config), algorithm)
-            mean_acc = mean(results.(config).(algorithm).accuracy_per_subject);
+            mean_acc = mean(results.(config).(algorithm).subject_accuracies);
             if mean_acc > best_overall_acc
                 best_overall_acc = mean_acc;
                 best_overall = sprintf('%s with %s configuration', upper(algorithm), upper(config));
@@ -1318,8 +1439,8 @@ if length(channel_configs) >= 2
         if isfield(results, 'ch2') && isfield(results.ch2, algorithm) && ...
            isfield(results, 'ch8') && isfield(results.ch8, algorithm)
             
-            mean_2ch = mean(results.ch2.(algorithm).accuracy_per_subject);
-            mean_8ch = mean(results.ch8.(algorithm).accuracy_per_subject);
+            mean_2ch = mean(results.ch2.(algorithm).subject_accuracies);
+            mean_8ch = mean(results.ch8.(algorithm).subject_accuracies);
             
             if mean_8ch > mean_2ch
                 improvements_found = true;

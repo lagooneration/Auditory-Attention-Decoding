@@ -19,9 +19,18 @@ This analysis compares three Auditory Attention Decoding (AAD) algorithms across
 | **TRF** | 50.3 ± 13.1% | **51.3 ± 11.5%** | 8-Channel | +0.9% ➡️ |
 | **CCA** | **72.2 ± 26.1%** | 43.8 ± 12.3% | 2-Channel | -28.4% ⬇️ |
 
+![Algorithm Comparison Heatmaps](Plots/algorithm_comparison_heatmaps.png)
+*Figure 1: Heatmap comparison showing mean accuracy and standard deviation across algorithms and channel configurations*
+
+![Subject Analysis](Plots/subject_analysis.png)
+*Figure 2: Individual subject performance across all algorithms and configurations*
+
 ---
 
 ## 🔬 Statistical Analysis
+
+![Statistical Analysis](Plots/statistical_analysis.png)
+*Figure 3: Statistical significance testing results showing p-values, effect sizes, and confidence intervals*
 
 ### Correlation Algorithm
 - **2-channel**: 50.3 ± 1.4%
@@ -30,12 +39,18 @@ This analysis compares three Auditory Attention Decoding (AAD) algorithms across
 - **Effect size**: Cohen's d = 27.56 (Extremely Large)
 - **Result**: 🎯 **8-channel SIGNIFICANTLY BETTER**
 
+![Correlation Individual Analysis](Plots/individual_correlation_analysis.png)
+*Figure 4: Detailed analysis of Correlation algorithm performance across configurations*
+
 ### TRF Algorithm  
 - **2-channel**: 50.3 ± 13.1%
 - **8-channel**: 51.3 ± 11.5%
 - **Difference**: +0.9% (p = 0.844) ns
 - **Effect size**: Cohen's d = 0.08 (Negligible)
 - **Result**: ⚖️ **No significant difference**
+
+![TRF Individual Analysis](Plots/individual_trf_analysis.png)
+*Figure 5: Detailed analysis of TRF algorithm performance across configurations*
 
 ### CCA Algorithm
 - **2-channel**: 72.2 ± 26.1%
@@ -44,9 +59,15 @@ This analysis compares three Auditory Attention Decoding (AAD) algorithms across
 - **Effect size**: Cohen's d = -1.39 (Large negative)
 - **Result**: ⚠️ **8-channel SIGNIFICANTLY WORSE**
 
+![CCA Individual Analysis](Plots/individual_cca_analysis.png)
+*Figure 6: Detailed analysis of CCA algorithm performance across configurations*
+
 ---
 
 ## 🎯 Research Implications
+
+![Improvement Analysis](Plots/improvement_analysis.png)
+*Figure 7: Channel configuration improvement analysis showing performance gains across algorithms*
 
 ### ✅ Spatial Enhancement Success
 **Correlation-based AAD** demonstrates remarkable improvement with 3D spatial processing:
@@ -116,6 +137,16 @@ Warning: Gammatone filters not available. Using basic envelope extraction.
 | **Audio Processing** | 15-band gammatone → power-law envelopes |
 | **Cross-validation** | Leave-one-trial-out |
 | **Statistical Test** | Paired t-test with Cohen's d |
+
+---
+
+## 📈 Comprehensive Summary
+
+![Comprehensive Summary](Plots/comprehensive_summary.png)
+*Figure 8: Complete analysis summary showing all key findings, statistical results, and algorithm comparisons in a unified visualization*
+
+![AAD Summary](Plots/AAD%20Summary.jpg)
+*Figure 9: Overall AAD algorithm comparison results highlighting the breakthrough performance of spatial correlation-based decoding*
 
 ---
 
