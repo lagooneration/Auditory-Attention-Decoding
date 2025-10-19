@@ -140,22 +140,57 @@ aad_algorithm_comparison_pipeline
 
 ---
 
-## 📊 Expected Results Structure
-
-After successful completion:
+## 📁 Project Structure
 
 ```
-c:\Research\AAD\
-├── preprocessed_data\              # 2-channel preprocessed EEG/audio
-├── stimuli\
-│   ├── envelopes\                  # Original 2-channel envelopes
-│   ├── multichannel_8ch\          # 3D spatial audio files
-│   │   └── envelopes\              # Multichannel envelope data
-├── aad_comparison_results\         # Complete analysis results
-│   ├── complete_aad_comparison_results.mat
-│   ├── aad_comparison_visualization.png
-│   └── comparison_report.txt
-└── scripts\                        # All MATLAB analysis functions
+📂 Auditory-Attention-Decoding/
+├── 📊 S1.mat - S16.mat                    # KULeuven EEG dataset
+├── 📂 stimuli/                           # Audio stimuli
+│   ├── 🎵 part1_track1_dry.wav          # Original mono tracks
+│   ├── 📂 envelopes/                    # 2-channel envelope data
+│   ├── 📂 multichannel_6ch/             # 6-channel spatial stimuli
+│   └── 📂 multichannel_8ch/             # 8-channel spatial stimuli
+│       └── 📂 envelopes/                # Multichannel envelope data
+├── 📂 preprocessed_data/                 # Processed EEG data
+├── 📂 aad_comparison_results/            # Analysis results
+│   ├── 📈 complete_aad_comparison_results.mat
+│   ├── 🖼️ aad_comparison_visualization.png
+│   └── 📄 comparison_report.txt
+├── 📂 Plots/                            # Generated visualizations
+├── 📂 scripts/                          # MATLAB analysis code
+│   ├── 🔧 preprocess_data.m
+│   ├── 🎯 create_multichannel_aad_stimuli.m
+│   ├── 🧮 aad_algorithm_comparison_pipeline.m
+│   └── 📊 create_aad_visualization_plots.m
+├── 📂 amtoolbox/                        # Auditory Modeling Toolbox
+├── 📖 README.md                         # This file
+├── 🚀 EXECUTION.md                      # Detailed execution guide
+├── 🧠 ALGORITHMS.md                     # Algorithm documentation
+└── 📊 RESULTS.md                        # Comprehensive results analysis
+```
+
+## 📈 Expected Results
+
+### **Output Files Structure**
+After successful execution:
+
+```
+📂 Results Generated:
+├── 📊 preprocessed_data/
+│   ├── S1.mat - S16.mat                 # Processed EEG data
+│   └── processing_log.txt               # Processing details
+├── 🎵 stimuli/multichannel_8ch/
+│   ├── part1_competitive_dry.wav        # 8-channel spatial audio
+│   └── envelopes/                       # Processed envelopes
+├── 📈 aad_comparison_results/
+│   ├── complete_aad_comparison_results.mat  # Full results data
+│   ├── aad_comparison_visualization.png     # Performance plots
+│   └── comparison_report.txt               # Statistical analysis
+└── 🖼️ Plots/
+    ├── aad_comprehensive_analysis.png   # Main performance comparison
+    ├── subject_wise_analysis.png        # Individual subject results
+    ├── statistical_analysis.png         # Significance testing
+    └── spatial_enhancement_analysis.png # Multichannel effects
 ```
 
 ## ⏱️ Total Execution Time
