@@ -1,0 +1,52 @@
+GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2025 [Your Name]
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+THIRD-PARTY COMPONENTS:
+
+This project incorporates the following third-party components:
+
+1. AMToolbox (Auditory Modeling Toolbox)
+   - License: GNU General Public License v3.0
+   - Copyright: AMToolbox developers
+   - Location: amtoolbox/ directory
+   - Source: http://amtoolbox.org/
+   - License file: amtoolbox/gpl-3.0.txt
+
+2. KULeuven AAD Dataset
+   - Source: Deckers et al. (2018)
+   - Authors: Neetha Das, Tom Francart, and Alexander Bertrand at KU Leuven
+   - License: [Please check with dataset authors - typically requires citation]
+   - Citation required: 
+     Deckers, L., Das, N., Keunen, A., Lesenfants, D., Brodbeck, C., & Francart, T. (2018). 
+     EEG-based detection of the locus of auditory attention with convolutional neural networks. 
+     bioRxiv, 475673.
+
+3. MATLAB Code Dependencies
+   - MATLAB Signal Processing Toolbox
+   - License: Commercial license required from MathWorks
+
+ATTRIBUTION:
+
+If you use this work, please cite:
+- The original KULeuven AAD dataset (see citation above)
+- This spatial enhancement implementation
+- AMToolbox (if using auditory modeling functions)
+
+For commercial use or alternative licensing, contact the repository owner.

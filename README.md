@@ -1,7 +1,7 @@
 # 🧠🎧 Auditory Attention Decoding with 3D Spatial Enhancement
 
 [![MATLAB](https://img.shields.io/badge/MATLAB-R2020b+-orange.svg)](https://www.mathworks.com/products/matlab.html)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Research](https://img.shields.io/badge/Research-Neuroscience-blue.svg)](https://github.com/lagooneration/Auditory-Attention-Decoding)
 
 > **Research Findings:** Achieving 91.7% AAD accuracy through 3D spatial audio processing - a 41.4% improvement over traditional methods.
@@ -169,7 +169,22 @@ We welcome contributions to improve and extend this research:
 3. **Dataset Integration:** Add support for other AAD datasets
 4. **Real-time Implementation:** Optimize for online processing
 
+## 📄 License
 
+This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
+
+### **License Compatibility Notice:**
+This project incorporates several components with different licenses:
+
+- **Your Code:** GPL v3.0 (this repository)
+- **AMToolbox:** GPL v3.0 (required dependency)
+- **KULeuven Dataset:** Academic use with citation requirement
+- **MATLAB Dependencies:** Commercial license required
+
+The GPL v3.0 license was chosen to ensure compatibility with the AMToolbox dependency. If you use this work, you must comply with GPL v3.0 terms, which require:
+- Making source code available if you distribute the software
+- Using GPL v3.0 license for derivative works
+- Providing proper attribution to all original authors
 
 ## Dataset Attribution
 
