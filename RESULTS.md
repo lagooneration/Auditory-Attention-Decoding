@@ -27,11 +27,6 @@ This analysis compares three Auditory Attention Decoding (AAD) algorithms across
 
 ---
 
-## 🔬 Statistical Analysis
-
-![Statistical Analysis](Plots/statistical_analysis.png)
-*Figure 3: Statistical significance testing results showing p-values, effect sizes, and confidence intervals*
-
 ### Correlation Algorithm
 - **2-channel**: 50.3 ± 1.4%
 - **8-channel**: 91.7 ± 1.6%

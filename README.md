@@ -103,9 +103,12 @@ c:\Research\AAD\
 ```
 
 ### **Performance Visualization**
-![AAD Performance Comparison](Plots/improvement_analysis.png)
+![Detailed AAD Comparison](Plots/improvement_analysis.png)
+*Figure: AAD Algorithm Detailed Comparison showing the breakthrough 41.4% improvement with 8-channel spatial processing*
 
-*Figure: AAD Algorithm Performance Comparison showing the breakthrough 41.4% improvement with 8-channel spatial processing*
+![AAD Performance Comparison](aad_comparison_results/aad_comparison_visualization.png)
+*Figure: AAD Algorithm Performance Comparison*
+
 
 ### **Key Metrics**
 - **Processing Time:** ~70 minutes total pipeline
